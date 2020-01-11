@@ -1,0 +1,33 @@
+Create custom glyphs for LCD modules
+====================================
+
+- Requires ncursesw
+
+Screenshot
+==========
+
+
+   LCD Glyph Generator
+
+   f:fill  d:delete  c:clear  q:exit
+
+   □   □   □   □   □
+
+   □   □   □   □   □
+
+   □   □   □   □   □
+
+   □   □   □   □   □
+
+   □   □   □   □   □
+
+   □   □   □   □   □
+
+   □   □   □   □   □
+
+   □   □   □   □   □
+
+   □   □   □   □   □
+
+   □   □   □   □   □
+
