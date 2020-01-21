@@ -7,6 +7,9 @@
 #include <ncurses.h>
 #include <locale.h>
 
+#define MAX_X 5
+#define MAX_Y 10
+
 #define C_X 3
 #define C_Y 5
 #define D_X 4
@@ -66,6 +69,12 @@ int parse_options(int argc, char *argv[], int *n_y, int *n_x,
         return -1;
     }
   }
+
+  if (*n_x < 1) *n_x = 1;
+  if (*n_x > MAX_X) *n_x = MAX_X;
+  if (*n_y < 1) *n_y = 1;
+  if (*n_y > MAX_Y) *n_y = MAX_Y;
+
   return optind;
 }
 
@@ -164,7 +173,7 @@ void draw() {
 
 int main(int argc, char *argv[]) {
 
-  char glyph[10][5] = { 0, };
+  char glyph[MAX_Y][MAX_X] = { 0, };
   enum output_fmt fmt = BIN;
   int c_x = C_X;
   int c_y = C_Y;
