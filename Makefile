@@ -6,4 +6,4 @@ debug:
 	gcc -g -o glyphgen glyphgen.c -lncursesw
 
 clean:
-	rm glyphgen
+	rm -f glyphgen

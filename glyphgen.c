@@ -1,3 +1,26 @@
+/*
+  MIT License
+  
+  Copyright (c) 2022 notweerdmonk
+  
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+  
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+  
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
 
 #include <stddef.h>
 #include <stdio.h>
@@ -7,15 +30,15 @@
 #include <ncurses.h>
 #include <locale.h>
 
-#define MAX_X 5
-#define MAX_Y 10
+#define MAX_X 64 /* columns */
+#define MAX_Y 32 /* rows */
 
-#define C_X 3
-#define C_Y 5
-#define D_X 4
-#define D_Y 2
-#define N_X 5
-#define N_Y 8
+#define C_X 3 /* x-offset on screen */
+#define C_Y 5 /* y-offset on screen */
+#define D_X 2 /* x-distance between pixels */
+#define D_Y 1 /* y-distance between pixels */
+#define N_X 5 /* default number of columns */
+#define N_Y 8 /* default number of rows */
 
 /* ncurses.h from libncursesw5 does not declare these fuctions */
 extern int mvaddwstr(int, int, wchar_t*);
@@ -48,16 +71,20 @@ int parse_options(int argc, char *argv[], int *n_y, int *n_x,
       case 'r':
         *n_y = atoi(optarg);
         break;
+
       case 'c':
         *n_x = atoi(optarg);
         break;
+
       case 'f':
         if (optarg[0] == 'h')
           *fmt = HEX;
         else
           *fmt = BIN;
         break;
+
       case 'h':
+
       default:
         if(opt == ':') {
           fprintf(stderr, "Invalid option: -%c requires an argument\n", optopt);
@@ -97,23 +124,28 @@ void deinit_screen() {
 
 static
 inline
-void output_glyph(const char (*p_glyph)[5], int n_y, int n_x,
+void output_glyph(const char (*p_glyph)[MAX_X], int n_y, int n_x,
     enum output_fmt fmt) {
-  printf("Glyph (%d x %d)\n" \
-         "Format: %s\n", n_x, n_y, (fmt == BIN) ? "bin" : "hex");
+
+  printf("Glyph (%d x %d)\n"
+         "Format: %s\n",
+         n_x, n_y, (fmt == BIN) ? "bin" : "hex");
+
   for (int r = 0; r < n_y; r++) {
-    int out = 0;
-    char buffer[8] = { 0, };
+    unsigned long out = 0;
+    char buffer[n_x];
+
     for (int c = 0; c < n_x; c++) {
       if (fmt == BIN)
         buffer[c] = (p_glyph[r][c] == '1') ? '1' : '0';
       else
         out += (p_glyph[r][c] == '1') ? 1 << (n_x - 1 - c) : 0;
     }
+
     if (fmt == BIN)
       printf("  0b%s\n", buffer);
     else
-      printf("  0x%x\n", out);
+      printf("  0x%lx\n", out);
   }
 }
 
@@ -201,37 +233,44 @@ int main(int argc, char *argv[]) {
     int c_y_prev = c_y;
     int c_x_prev = c_x;
     int ch = getch();
+
     switch (ch) {
       case 'k':
       case KEY_UP:
         if (c_y > C_Y)
             c_y -= D_Y, --c;
         break;
+
       case 'j':
       case KEY_DOWN:
         if (c_y < (C_Y + D_Y * (n_y - 1)))
           c_y += D_Y, ++c;
         break;
+
       case 'h':
       case KEY_LEFT:
         if (c_x > C_X)
           c_x -= D_X, --r;
         break;
+
       case 'l':
       case KEY_RIGHT:
         if (c_x < (C_X + D_X * (n_x - 1)))
           c_x += D_X, ++r;
         break;
+
       case 'f':
         disp_pixel(lit_pixel);
         get_cursor(c_y_prev, c_x_prev);
         glyph[c][r] = '1';
         break;
+
       case 'd':
         disp_pixel(dark_pixel);
         get_cursor(c_y_prev, c_x_prev);
         glyph[c][r] = '0';
         break;
+
       case 'c':
         c_y = C_Y, c_x = C_X;
         disp_rect(c_y, c_x, n_y, n_x, D_Y, D_X, dark_pixel);
@@ -239,10 +278,12 @@ int main(int argc, char *argv[]) {
         memset(glyph, 0, sizeof(glyph));
         r = c = 0;
         break;
+
       case 'q':
         exit_cond = 1;
+
       default:
-        ;;
+        ;
     }
 
     if (c_y != c_y_prev || c_x != c_x_prev) {
