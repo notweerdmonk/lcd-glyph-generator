@@ -38,7 +38,7 @@
 #define D_X 2 /* x-distance between pixels */
 #define D_Y 1 /* y-distance between pixels */
 #define N_X 5 /* default number of columns */
-#define N_Y 8 /* default number of rows */
+#define N_Y 7 /* default number of rows */
 
 /* ncurses.h from libncursesw5 does not declare these fuctions */
 extern int mvaddwstr(int, int, wchar_t*);
